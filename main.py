@@ -12,7 +12,6 @@ SHORT_BREAK_MIN = 5
 LONG_BREAK_MIN = 20
 iterations = 0
 timer = None
-# isPaused = False
 paused_count = 0
 # ---------------------------- TIMER RESET ------------------------------- #
 
@@ -24,60 +23,43 @@ def reset_timer():
     check_symbols.config(text="")
     global iterations
     iterations = 0
-    # global isPaused
-    # isPaused = False
     start_button.config(state="normal")
     pause_button.config(state="disabled")
-    resume_button.config(state="disabled")
 
 
 # ---------------------------- TIMER MECHANISM ------------------------------- #
 
 
 def pause_timer():
-    # global isPaused
-    # isPaused = True
     window.after_cancel(timer)
-    timer_label.config(text="Paused", fg=RED)
-    resume_button.config(state="normal")
+    # timer_label.config(text="Paused", fg=RED)
     pause_button.config(state="disabled")
-
-
-def resume_timer():
-    # global isPaused
-    # isPaused = False
-    if iterations % 8 == 0:
-        timer_label.config(text="Break", fg=PINK)
-    elif iterations % 2 == 0:
-        timer_label.config(text="Break", fg=RED)
-    else:
-        timer_label.config(text="Work", fg=GREEN)
-    window.after_cancel(timer)
-    count_down(paused_count)
-    resume_button.config(state="disabled")
-    pause_button.config(state="normal")
+    start_button.config(state="normal")
 
 
 def start_timer():
     pause_button.config(state="normal")
-    resume_button.config(state="disabled")
     reset_button.config(state="normal")
 
-    global iterations
-    iterations += 1
-    work_seconds = WORK_MIN * 60
-    short_break_seconds = SHORT_BREAK_MIN * 60
-    long_break_seconds = LONG_BREAK_MIN * 60
-    start_button.config(state="disabled")
-    if iterations % 8 == 0:
-        count_down(long_break_seconds)
-        timer_label.config(text="Break", fg=PINK)
-    elif iterations % 2 == 0:
-        count_down(short_break_seconds)
-        timer_label.config(text="Break", fg=RED)
+    global paused_count
+    if paused_count > 0:
+        count_down(paused_count)
     else:
-        count_down(work_seconds)
-        timer_label.config(text="Work", fg=GREEN)
+        global iterations
+        iterations += 1
+        work_seconds = WORK_MIN * 60
+        short_break_seconds = SHORT_BREAK_MIN * 60
+        long_break_seconds = LONG_BREAK_MIN * 60
+        start_button.config(state="disabled")
+        if iterations % 8 == 0:
+            count_down(long_break_seconds)
+            timer_label.config(text="Break", fg=PINK)
+        elif iterations % 2 == 0:
+            count_down(short_break_seconds)
+            timer_label.config(text="Break", fg=RED)
+        else:
+            count_down(work_seconds)
+            timer_label.config(text="Work", fg=GREEN)
 
 
 # ---------------------------- COUNTDOWN MECHANISM ------------------------------- #
@@ -92,7 +74,6 @@ def count_down(count):
         count_seconds = f"0{count_seconds}"
     canvas.itemconfig(timer_text, text=f"{count_minute}:{count_seconds}")
     if count > 0:
-        # if isPaused == False:
         global timer
         timer = window.after(1000, count_down, count - 1)
     else:
@@ -138,9 +119,6 @@ pause_button = Button(text="Pause", highlightbackground=YELLOW, command=pause_ti
 pause_button.grid(row=3, column=2)
 pause_button.config(state="disabled")
 
-resume_button = Button(text="Resume", highlightbackground=YELLOW, command=resume_timer)
-resume_button.grid(row=3, column=0)
-resume_button.config(state="disabled")
 
 # Check symbols for intervals
 
