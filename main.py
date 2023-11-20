@@ -12,6 +12,8 @@ SHORT_BREAK_MIN = 5
 LONG_BREAK_MIN = 20
 iterations = 0
 timer = None
+# isPaused = False
+paused_count = 0
 # ---------------------------- TIMER RESET ------------------------------- #
 
 
@@ -22,13 +24,45 @@ def reset_timer():
     check_symbols.config(text="")
     global iterations
     iterations = 0
+    # global isPaused
+    # isPaused = False
     start_button.config(state="normal")
+    pause_button.config(state="disabled")
+    resume_button.config(state="disabled")
 
 
 # ---------------------------- TIMER MECHANISM ------------------------------- #
 
 
+def pause_timer():
+    # global isPaused
+    # isPaused = True
+    window.after_cancel(timer)
+    timer_label.config(text="Paused", fg=RED)
+    resume_button.config(state="normal")
+    pause_button.config(state="disabled")
+
+
+def resume_timer():
+    # global isPaused
+    # isPaused = False
+    if iterations % 8 == 0:
+        timer_label.config(text="Break", fg=PINK)
+    elif iterations % 2 == 0:
+        timer_label.config(text="Break", fg=RED)
+    else:
+        timer_label.config(text="Work", fg=GREEN)
+    window.after_cancel(timer)
+    count_down(paused_count)
+    resume_button.config(state="disabled")
+    pause_button.config(state="normal")
+
+
 def start_timer():
+    pause_button.config(state="normal")
+    resume_button.config(state="disabled")
+    reset_button.config(state="normal")
+
     global iterations
     iterations += 1
     work_seconds = WORK_MIN * 60
@@ -50,12 +84,15 @@ def start_timer():
 
 
 def count_down(count):
+    global paused_count
+    paused_count = count
     count_minute = math.floor(count / 60)
     count_seconds = count % 60
     if count_seconds < 10:
         count_seconds = f"0{count_seconds}"
     canvas.itemconfig(timer_text, text=f"{count_minute}:{count_seconds}")
     if count > 0:
+        # if isPaused == False:
         global timer
         timer = window.after(1000, count_down, count - 1)
     else:
@@ -88,14 +125,22 @@ timer_text = canvas.create_text(
 canvas.grid(row=1, column=1)
 
 
-# Creating Buttons to Start and Reset Timer
+# Creating Buttons to Start, Reset Timer, Pause amd Resume
 
 start_button = Button(text="Start", highlightbackground=YELLOW, command=start_timer)
 start_button.grid(row=2, column=0)
 
 reset_button = Button(text="Reset", highlightbackground=YELLOW, command=reset_timer)
 reset_button.grid(row=2, column=2)
+reset_button.config(state="disabled")
 
+pause_button = Button(text="Pause", highlightbackground=YELLOW, command=pause_timer)
+pause_button.grid(row=3, column=2)
+pause_button.config(state="disabled")
+
+resume_button = Button(text="Resume", highlightbackground=YELLOW, command=resume_timer)
+resume_button.grid(row=3, column=0)
+resume_button.config(state="disabled")
 
 # Check symbols for intervals
 
