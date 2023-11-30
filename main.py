@@ -19,10 +19,12 @@ paused_count = 0
 def reset_timer():
     window.after_cancel(timer)
     canvas.itemconfig(timer_text, text="00:00")
-    timer_label.config(text="Timer")
+    timer_label.config(text="Timer",fg=GREEN)
     check_symbols.config(text="")
     global iterations
+    global paused_count
     iterations = 0
+    paused_count=0
     start_button.config(state="normal")
     pause_button.config(state="disabled")
 
